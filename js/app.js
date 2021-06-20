@@ -17,7 +17,7 @@ let rightIndex;
 
 function Img (name,path) {
     this.name = name
-    this.path = `/img/${path}`
+    this.path = `./img/${path}`
     this.view = 0;
     this.fav = 0;
     Img.arr.push(this);
