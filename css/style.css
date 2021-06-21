@@ -77,3 +77,14 @@ ul li {
     padding: 5px;
     border: 1px solid black;
 }
+
+
+#chartCont {
+    /* background-color: #E84545; */
+    width: 90%;
+}
+
+canvas#graph {
+    background-color: white;
+    width: 0;
+}
