@@ -6,10 +6,12 @@ let middleImg = document.getElementById('middleImg');
 let rightImg = document.getElementById('rightImg');
 let listCont = document.getElementById('listCont');
 let graph = document.getElementById('graph');
-let count = 0;
+let chartCont = document.getElementById('chartCont');
+let chart;
+let count;
 let isButtonClicked = false;
 let isImgClicked = false;
-let entry = 25;
+let entry;
 let imgArray = ['bag.jpg', 'banana.jpg', 'bathroom.jpg', 'boots.jpg', 'breakfast.jpg', 'bubblegum.jpg', 'chair.jpg', 'cthulhu.jpg', 'dog-duck.jpg', 'dragon.jpg', 'pen.jpg', 'pet-sweep.jpg', 'scissors.jpg', 'shark.jpg', 'sweep.png', 'tauntaun.jpg', 'unicorn.jpg', 'usb.gif', 'water-can.jpg', 'wine-glass.jpg'];
 let leftIndex;
 let middleIndex;
@@ -35,6 +37,8 @@ for (let i=0; i<imgArray.length; i++) {
 }
 
 function render () {
+
+
     do {
         leftIndex = randomNumber(0, imgArray.length -1 );
         middleIndex = randomNumber(0, imgArray.length -1 );
@@ -48,6 +52,8 @@ function render () {
     Img.arr[leftIndex].view++;
     Img.arr[middleIndex].view++;
     Img.arr[rightIndex].view++;
+    localStorage.setItem('track', [leftIndex,middleIndex,rightIndex,count,entry, isImgClicked, isButtonClicked]);
+    localStorage.setItem('gameState', JSON.stringify(Img.arr));
 
 }
 
@@ -67,12 +73,15 @@ function pickAndChoose (e) {
         if (isButtonClicked){
         result()
         }
+        render()
     }
     if (count >= entry) {
         imgCont.removeEventListener('click', pickAndChoose);
+        Img.arr[leftIndex].view--;
+        Img.arr[middleIndex].view--;
+        Img.arr[rightIndex].view--;
         draw();
     }
-    render()
 }
 
 function result () {
@@ -96,7 +105,7 @@ function randomNumber( min, max ) {
 
 function trail () {
     if (isImgClicked) {
-        alert('You have started the game already refresh the page and choose number before starting the game')
+        alert('You have started the game already. \n Restart The Game and choose number before starting the game')
     }
     else {
         do {
@@ -111,7 +120,7 @@ function draw () {
         views.push(Img.arr[i].view);
     }
 
-    new Chart("graph", {
+    chart =   new Chart("graph", {
         type: "bar",
         data: {
             datasets: [{
@@ -143,5 +152,56 @@ function draw () {
         });
 }
 
+function startGame () {
+    if (localStorage.getItem('track') === null) {
+        count = 0;
+        entry = 25;
+        render();
+
+    }
+    else {
+    let track = localStorage.getItem('track').split(',');
+    let index = [parseInt(track[0]),parseInt(track[1]),parseInt(track[2]),parseInt(track[3]),parseInt(track[4]), (track[5]), (track[6])];
+    let gameState = JSON.parse(localStorage.getItem('gameState'));
+    for (let i=0 ; i<gameState.length ; i++) {
+        Img.arr[i].view = gameState[i].view;
+        Img.arr[i].fav = gameState[i].fav;
+        fav.push(Img.arr[i].fav);
+        views.push(Img.arr[i].view);
+    }
+    leftIndex = index[0];
+    middleIndex = index[1];
+    rightIndex = index[2];
+    count = index[3];
+    entry = index[4];
+    isImgClicked=index[5];
+    leftImg.src = Img.arr[index[0]].path;
+    middleImg.src = Img.arr[index[1]].path;
+    rightImg.src = Img.arr[index[2]].path;
+    if (count >= entry) {
+        chart =   new Chart('graph');
+        chart.destroy();
+        draw();
+    }
+    }
+}
+
+function reset () {
+    localStorage.clear();
+    isImgClicked = false;
+    listCont.innerHTML = '';
+    isButtonClicked = false;
+    for (let i=0 ; i<Img.arr.length ; i++) {
+        Img.arr[i].view = 0;
+        Img.arr[i].fav = 0;
+    }
+    chart.destroy();
+    startGame();
+    imgCont.addEventListener('click',pickAndChoose);
+
+}
+
+chart =   new Chart('graph');
+chart.destroy();
+startGame();
 imgCont.addEventListener('click',pickAndChoose);
-render();
